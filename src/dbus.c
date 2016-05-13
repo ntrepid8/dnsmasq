@@ -49,6 +49,9 @@ const char* introspection_xml_template =
 "    <method name=\"SetServersEx\">\n"
 "      <arg name=\"servers\" direction=\"in\" type=\"aas\"/>\n"
 "    </method>\n"
+"    <method name=\"SetAllServersEx\">\n"
+"      <arg name=\"servers\" direction=\"in\" type=\"aas\"/>\n"
+"    </method>\n"
 "    <method name=\"SetFilterWin2KOption\">\n"
 "      <arg name=\"filterwin2k\" direction=\"in\" type=\"b\"/>\n"
 "    </method>\n"
@@ -424,6 +427,13 @@ static DBusMessage* dbus_read_servers_ex(DBusMessage *message, int strings)
   return error;
 }
 
+static DBusMessage* dbus_set_all_servers_ex(DBusMessage *message, int strings)
+{
+  mark_servers(SERV_FROM_RESOLV);
+  mark_servers(SERV_FROM_FILE);
+  return dbus_read_servers_ex(message, strings);
+}
+
 static DBusMessage *dbus_set_bool(DBusMessage *message, int flag, char *name)
 {
   DBusMessageIter iter;
@@ -658,6 +668,11 @@ DBusHandlerResult message_handler(DBusConnection *connection,
       reply = dbus_read_servers_ex(message, 0);
       new_servers = 1;
     }
+  else if (strcmp(method, "SetAllServersEx") == 0)
+    {
+      reply = dbus_set_all_servers_ex(message, 0);
+      new_servers = 1;
+    }
   else if (strcmp(method, "SetDomainServers") == 0)
     {
       reply = dbus_read_servers_ex(message, 1);
@@ -670,6 +685,14 @@ DBusHandlerResult message_handler(DBusConnection *connection,
   else if (strcmp(method, "SetBogusPrivOption") == 0)
     {
       reply = dbus_set_bool(message, OPT_BOGUSPRIV, "bogus-priv");
+    }
+  else if (strcmp(method, "SetAddMacOption") == 0)
+    {
+      reply = dbus_set_bool(message, OPT_ADD_MAC, "add-mac");
+    }
+  else if (strcmp(method, "SetNoResolvOption") == 0)
+    {
+      reply = dbus_set_bool(message, OPT_NO_RESOLV, "no-resolv");
     }
 #ifdef HAVE_DHCP
   else if (strcmp(method, "AddDhcpLease") == 0)
