@@ -694,6 +694,10 @@ DBusHandlerResult message_handler(DBusConnection *connection,
     {
       reply = dbus_set_bool(message, OPT_NO_RESOLV, "no-resolv");
     }
+  else if (strcmp(method, "SetNoPollOption") == 0)
+    {
+      reply = dbus_set_bool(message, OPT_NO_POLL, "no-poll");
+    }
 #ifdef HAVE_DHCP
   else if (strcmp(method, "AddDhcpLease") == 0)
     {
