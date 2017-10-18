@@ -1,7 +1,7 @@
 /*
  dhcp_release6 --iface <interface> --client-id <client-id> --server-id
  server-id --iaid <iaid>  --ip <IP>  [--dry-run] [--help]
- MUST be run as root - will fail othewise
+ MUST be run as root - will fail otherwise
  */
 
 /* Send a DHCPRELEASE message  to IPv6 multicast address  via the specified interface
@@ -20,9 +20,9 @@
  The iaid argument is numeric string and mandatory. Normally
  it can be found in leases file both on client and server.
  
- IP is an IPv6 adress to release
+ IP is an IPv6 address to release
  
- If --dry-run is specified, dhcp_release6 just prints hexadecimal represantation of
+ If --dry-run is specified, dhcp_release6 just prints hexadecimal representation of
  packet to send to stdout and exits.
  
  If --help is specified, dhcp_release6 print usage information to stdout and exits
@@ -350,11 +350,12 @@ int send_release_packet(const char* iface, struct dhcp6_packet* packet){
 
 
 int main(int argc, char *  const argv[]) {
-    const char* iface = "";
-    const char* ip = "";
-    const char* client_id = "";
-    const char* server_id = "";
-    const char* iaid = "";
+    const char* UNINITIALIZED = "";
+    const char* iface = UNINITIALIZED;
+    const char* ip = UNINITIALIZED;
+    const char* client_id = UNINITIALIZED;
+    const char* server_id = UNINITIALIZED;
+    const char* iaid = UNINITIALIZED;
     int dry_run = 0;
     while (1) {
         int option_index = 0;
@@ -392,7 +393,7 @@ int main(int argc, char *  const argv[]) {
                 break;
             case 'h':
                 usage(argv[0], stdout);
-                break;
+                return 0;
             case '?':
                 usage(argv[0], stderr);
                 return -1;
@@ -402,6 +403,34 @@ int main(int argc, char *  const argv[]) {
         }
         
     }
+    if (iaid == UNINITIALIZED){
+        fprintf(stderr, "Missing required iaid parameter\n");
+        usage(argv[0], stderr);
+        return -1;
+    }
+    if (server_id == UNINITIALIZED){
+        fprintf(stderr, "Missing required server-id parameter\n");
+        usage(argv[0], stderr);
+        return -1;
+    }
+    if (client_id == UNINITIALIZED){
+        fprintf(stderr, "Missing required client-id parameter\n");
+        usage(argv[0], stderr);
+        return -1;
+    }
+    if (ip == UNINITIALIZED){
+        fprintf(stderr, "Missing required ip parameter\n");
+        usage(argv[0], stderr);
+        return -1;
+    }
+    if (iface == UNINITIALIZED){
+        fprintf(stderr, "Missing required iface parameter\n");
+        usage(argv[0], stderr);
+        return -1;
+    }
+
+
+
     struct dhcp6_packet packet = create_release_packet(iaid, ip, client_id, server_id);
     if (dry_run){
         uint16_t i;
